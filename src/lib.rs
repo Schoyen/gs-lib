@@ -1,3 +1,5 @@
+mod one_dim;
+
 #[cfg(test)]
 mod tests {
     #[test]
