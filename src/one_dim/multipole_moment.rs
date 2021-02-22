@@ -3,7 +3,7 @@ use super::OD1D;
 
 use ndarray::{Array, Array2};
 
-fn construct_overlap_matrix_elements(gaussians: &Vec<G1D>) -> Array2<f64> {
+pub fn construct_overlap_matrix_elements(gaussians: &Vec<G1D>) -> Array2<f64> {
     construct_multipole_moment_matrix_elements(0, 0.0, gaussians)
 }
 
@@ -14,7 +14,7 @@ fn construct_overlap_matrix_elements_inplace(
     construct_multipole_moment_matrix_elements_inplace(0, 0.0, gaussians, s);
 }
 
-fn construct_multipole_moment_matrix_elements(
+pub fn construct_multipole_moment_matrix_elements(
     e: u32,
     center: f64,
     gaussians: &Vec<G1D>,
