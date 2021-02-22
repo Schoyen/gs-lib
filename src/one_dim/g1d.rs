@@ -1,6 +1,7 @@
 use factorial::DoubleFactorial;
-use itertools::izip;
+use ndarray::{Array, Array1};
 
+#[derive(Debug)]
 pub struct G1D {
     pub i: u32,
     pub a: f64,
