@@ -89,9 +89,9 @@ fn m(e: i32, t: i32, p: f64, od_center: f64, center: f64) -> f64 {
 
     if e == 0 {
         return if t == 0 {
-            0.0
-        } else {
             (std::f64::consts::PI / p).sqrt()
+        } else {
+            0.0
         };
     }
 
