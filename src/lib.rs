@@ -1,4 +1,4 @@
-mod one_dim;
+pub mod one_dim;
 
 #[cfg(test)]
 mod tests {
