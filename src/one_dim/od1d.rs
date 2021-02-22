@@ -1,8 +1,8 @@
 use super::G1D;
 
 pub struct OD1D<'a> {
-    g_i: &'a G1D,
-    g_j: &'a G1D,
+    pub g_i: &'a G1D,
+    pub g_j: &'a G1D,
 
     pub i: u32,
     pub j: u32,
