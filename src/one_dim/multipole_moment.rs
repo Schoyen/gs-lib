@@ -1,7 +1,18 @@
 use super::G1D;
 use super::OD1D;
 
-use ndarray::{Array, Array2};
+use ndarray::{Array, Array1, Array2};
+
+pub fn trapz(f: &Array1<f64>, x: &Array1<f64>) -> f64 {
+    let dx = x[1] - x[0];
+    let mut val = 0.0;
+
+    for i in 1..x.len() {
+        val += f[i - 1] + f[i]
+    }
+
+    0.5 * val * dx
+}
 
 pub fn construct_overlap_matrix_elements(gaussians: &Vec<G1D>) -> Array2<f64> {
     construct_multipole_moment_matrix_elements(0, 0.0, gaussians)
