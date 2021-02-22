@@ -99,10 +99,16 @@ mod tests {
             vec![G1D::new(0, 2.0, 2.0, 'x'), G1D::new(0, 2.0, -2.0, 'x')];
 
         let s = construct_overlap_matrix_elements(&g_list);
+        let mut s_2 = Array2::zeros((g_list.len(), g_list.len()));
+        construct_overlap_matrix_elements_inplace(&g_list, &mut s_2);
+
+        assert_eq!(s.nrows(), s_2.nrows());
+        assert_eq!(s.ncols(), s_2.ncols());
 
         for i in 0..s.nrows() {
             for j in 0..s.ncols() {
                 assert!(s[[i, j]].abs() < 1e-12);
+                assert!((s[[i, j]] - s_2[[i, j]]).abs() < 1e-12);
             }
         }
     }
@@ -117,10 +123,18 @@ mod tests {
         ];
 
         let d = construct_multipole_moment_matrix_elements(1, 1.0, &g_list);
+        let mut d_2 = Array2::zeros((g_list.len(), g_list.len()));
+        construct_multipole_moment_matrix_elements_inplace(
+            1, 1.0, &g_list, &mut d_2,
+        );
+
+        assert_eq!(d.nrows(), d_2.nrows());
+        assert_eq!(d.ncols(), d_2.ncols());
 
         for i in 0..d.nrows() {
             for j in 0..d.ncols() {
                 assert!((d[[i, j]] - d[[j, i]]).abs() < 1e-12);
+                assert!((d[[i, j]] - d_2[[i, j]]).abs() < 1e-12);
             }
         }
     }
