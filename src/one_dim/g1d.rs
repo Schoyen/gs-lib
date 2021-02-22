@@ -12,7 +12,7 @@ pub struct G1D {
 
 impl G1D {
     pub fn new(i: u32, a: f64, center: f64, symbol: char) -> Self {
-        let norm = G1D::compute_norm(i, a);
+        let norm = 1.0 / G1D::compute_norm(i, a);
 
         G1D {
             i,
