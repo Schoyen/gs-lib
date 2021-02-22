@@ -103,6 +103,15 @@ fn m(e: i32, t: i32, p: f64, od_center: f64, center: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use approx::assert_abs_diff_eq;
+
+    #[test]
+    fn test_trapz() {
+        let x = Array::linspace(-10.0, 10.0, 1001);
+        let x_num_sq = trapz(&x, &x);
+
+        assert_abs_diff_eq!(x_num_sq, 0.0, epsilon = 1e-7);
+    }
 
     #[test]
     fn test_overlap() {
@@ -118,9 +127,36 @@ mod tests {
 
         for i in 0..s.nrows() {
             for j in 0..s.ncols() {
-                assert!(s[[i, j]].abs() < 1e-12);
                 assert!((s[[i, j]] - s_2[[i, j]]).abs() < 1e-12);
             }
+        }
+
+        let gaussians = vec![
+            G1D::new(0, 1.0, 0.5, 'x'),
+            G1D::new(0, 0.5, 0.0, 'x'),
+            G1D::new(1, 1.0, 0.0, 'x'),
+            G1D::new(2, 1.0, 0.0, 'x'),
+        ];
+
+        let s = construct_overlap_matrix_elements(&gaussians);
+        let mut s_num = Array2::zeros((gaussians.len(), gaussians.len()));
+        let x = Array::linspace(-10.0, 10.0, 1001);
+
+        for i in 0..gaussians.len() {
+            let g_i = &gaussians[i];
+            let g_i_eval = g_i.evaluate(&x, false);
+
+            for j in 0..gaussians.len() {
+                let g_j = &gaussians[j];
+
+                s_num[[i, j]] = g_i.norm
+                    * g_j.norm
+                    * trapz(&(&g_i_eval * &g_j.evaluate(&x, false)), &x);
+            }
+        }
+
+        for (s_o, s_n) in s.iter().zip(s_num.iter()) {
+            assert_abs_diff_eq!(s_o, s_n, epsilon = 1e-12);
         }
     }
 
