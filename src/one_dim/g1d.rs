@@ -45,20 +45,15 @@ impl G1D {
         norm * x_center.powi(self.i as i32) * (-self.a * x_center.powi(2)).exp()
     }
 
-    pub fn evaluate(&self, x: &Vec<f64>, with_norm: bool) -> Vec<f64> {
-        let mut res = vec![0.0; x.len()];
-
-        for i in 0..x.len() {
-            res[i] = self.evaluate_point(x[i], with_norm);
-        }
-
-        res
+    pub fn evaluate(&self, x: &Array1<f64>, with_norm: bool) -> Array1<f64> {
+        x.mapv(|x| self.evaluate_point(x, with_norm))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use approx::assert_abs_diff_eq;
 
     #[test]
     fn test_construction() {
@@ -66,22 +61,12 @@ mod tests {
 
         assert!(G1D::compute_norm(1, 1.0) > 0.0);
         assert!((G1D::compute_norm(0, 1.0) - 1.11951).abs() < 1e-3);
-        assert_eq!(g1d_z.norm, G1D::compute_norm(0, 1.0));
+        assert_eq!(g1d_z.norm, 1.0 / G1D::compute_norm(0, 1.0));
     }
 
     #[test]
     fn test_recurrence() {
-        let start = -2.0;
-        let stop = 2.0;
-        let n = 101;
-        let dx = (stop - start) / ((n - 1) as f64);
-        let mut x = vec![0.0; n];
-
-        for i in 0..n {
-            x[i] = start + (i as f64) * dx;
-        }
-
-        assert_eq!(x[x.len() - 1], stop);
+        let x = Array::linspace(-2.0, 2.0, 101);
 
         let a = 1.0;
         let center = 0.5;
@@ -89,12 +74,13 @@ mod tests {
 
         for i in 1..4 {
             let g = G1D::new(i, a, center, 'x');
+            let g_left = g.evaluate(&x, false);
+            let g_right = g_c.evaluate(&x, false) * (&x - center);
 
-            for (_x, y_c, y) in
-                izip!(&x, g_c.evaluate(&x, false), g.evaluate(&x, false))
-            {
-                assert!((y_c * (_x - center) - y).abs() < 1e-10);
+            for (left, right) in g_left.iter().zip(g_right.iter()) {
+                assert_abs_diff_eq!(left, right);
             }
+
             g_c = g;
         }
     }
