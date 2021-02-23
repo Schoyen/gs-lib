@@ -1,5 +1,4 @@
-use super::G1D;
-use super::OD1D;
+use super::{G1D, OD1D};
 
 use ndarray::{Array, Array1, Array2};
 
@@ -67,7 +66,7 @@ fn construct_multipole_moment_matrix_elements_inplace(
     }
 }
 
-fn s(e: u32, center: f64, od: OD1D) -> f64 {
+pub fn s(e: u32, center: f64, od: OD1D) -> f64 {
     let mut val = 0.0;
 
     for t in 0..(std::cmp::min(od.i + od.j, e) + 1) {
