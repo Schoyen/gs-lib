@@ -48,3 +48,29 @@ fn d(e: u32, g_i: &G1D, g_j: &G1D) -> f64 {
 
     forward + backward
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use approx::assert_abs_diff_eq;
+
+    #[test]
+    fn test_kinetic_energy_operator() {
+        let gaussians = vec![
+            G1D::new(0, 1.0, 0.5, 'x'),
+            G1D::new(0, 0.5, 0.0, 'x'),
+            G1D::new(1, 1.0, 0.0, 'x'),
+            G1D::new(2, 1.0, 0.0, 'x'),
+        ];
+
+        let t = construct_kinetic_matrix_elements(&gaussians);
+        assert!(t.is_square());
+
+        for i in 0..t.nrows() {
+            for j in 0..t.ncols() {
+                assert_abs_diff_eq!(t[[i, j]], t[[j, i]]);
+            }
+        }
+    }
+}
