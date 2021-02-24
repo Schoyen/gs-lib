@@ -1,5 +1,5 @@
 use factorial::DoubleFactorial;
-use ndarray::{Array, Array1};
+use ndarray::Array1;
 
 #[derive(Debug)]
 pub struct G1D {
@@ -54,6 +54,7 @@ impl G1D {
 mod tests {
     use super::*;
     use approx::assert_abs_diff_eq;
+    use ndarray::Array;
 
     #[test]
     fn test_construction() {
