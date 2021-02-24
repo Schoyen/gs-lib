@@ -1,7 +1,7 @@
 use factorial::DoubleFactorial;
 use ndarray::Array1;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct G1D {
     pub i: u32,
     pub a: f64,
