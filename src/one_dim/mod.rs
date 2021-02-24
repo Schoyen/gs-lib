@@ -14,5 +14,5 @@ pub use multipole_moment::{
 
 pub use differential_operator::{
     construct_differential_operator_matrix_elements,
-    construct_kinetic_matrix_elements,
+    construct_kinetic_operator_matrix_elements,
 };
