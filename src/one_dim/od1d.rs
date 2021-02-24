@@ -15,7 +15,6 @@ pub struct OD1D<'a> {
     j_com: f64,
 
     exp_weight: f64,
-    norm: f64,
 }
 
 impl<'a> OD1D<'a> {
@@ -29,7 +28,6 @@ impl<'a> OD1D<'a> {
         let i_com = com - g_i.center; // X_PA
         let j_com = com - g_j.center; // X_PB
         let exp_weight = (-red_exp * center_diff.powi(2)).exp(); // K_AB
-        let norm = g_i.norm * g_j.norm;
 
         OD1D {
             g_i,
@@ -43,7 +41,6 @@ impl<'a> OD1D<'a> {
             i_com,
             j_com,
             exp_weight,
-            norm,
         }
     }
 
