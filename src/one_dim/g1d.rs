@@ -1,5 +1,5 @@
-use factorial::DoubleFactorial;
 use ndarray::Array1;
+use rgsl::gamma_beta::factorials::doublefact;
 
 #[derive(Debug, Copy, Clone)]
 pub struct G1D {
@@ -28,12 +28,12 @@ impl G1D {
         assert!(df_test >= -1);
 
         let df = if df_test == -1 {
-            1
+            1.0
         } else {
-            (df_test as u32).double_factorial()
+            doublefact(df_test as u32)
         };
 
-        ((df as f64) / (4.0 * a).powi(i as i32)
+        (df / (4.0 * a).powi(i as i32)
             * (std::f64::consts::PI / (2.0 * a)).sqrt())
         .sqrt()
     }
