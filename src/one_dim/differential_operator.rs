@@ -1,18 +1,17 @@
-use super::{G1D, OD1D};
 use super::s;
+use super::{G1D, OD1D};
 
 use ndarray::{Array, Array2};
 
-
-pub fn construct_kinetic_matrix_elements(
+pub fn construct_kinetic_operator_matrix_elements(
     gaussians: &Vec<G1D>,
 ) -> Array2<f64> {
     -0.5 * construct_differential_operator_matrix_elements(2, gaussians)
 }
 
-
 pub fn construct_differential_operator_matrix_elements(
-    e: u32, gaussians: &Vec<G1D>,
+    e: u32,
+    gaussians: &Vec<G1D>,
 ) -> Array2<f64> {
     let l = gaussians.len();
     let mut d_e = Array::zeros((l, l));
@@ -33,7 +32,6 @@ pub fn construct_differential_operator_matrix_elements(
     d_e
 }
 
-
 fn d(e: u32, g_i: &G1D, g_j: &G1D) -> f64 {
     if e == 0 {
         return s(0, 0.0, OD1D::new(g_i, g_j));
@@ -43,12 +41,16 @@ fn d(e: u32, g_i: &G1D, g_j: &G1D) -> f64 {
     let a = g_i.a;
     let center = g_i.center;
 
-    let forward = 2.0 * a * d(e - 1, &G1D::new(i + 1, a, center, g_i.symbol), g_j);
-    let backward = if i < 1 { 0.0 } else { -(i as f64) * d(e - 1, &G1D::new(i - 1, a, center, g_i.symbol), g_j) };
+    let forward =
+        2.0 * a * d(e - 1, &G1D::new(i + 1, a, center, g_i.symbol), g_j);
+    let backward = if i < 1 {
+        0.0
+    } else {
+        -(i as f64) * d(e - 1, &G1D::new(i - 1, a, center, g_i.symbol), g_j)
+    };
 
     forward + backward
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -64,7 +66,7 @@ mod tests {
             G1D::new(2, 1.0, 0.0, 'x'),
         ];
 
-        let t = construct_kinetic_matrix_elements(&gaussians);
+        let t = construct_kinetic_operator_matrix_elements(&gaussians);
         assert!(t.is_square());
 
         for i in 0..t.nrows() {
