@@ -126,7 +126,7 @@ mod tests {
 
         for i in 0..s.nrows() {
             for j in 0..s.ncols() {
-                assert!((s[[i, j]] - s_2[[i, j]]).abs() < 1e-12);
+                assert_abs_diff_eq!(s[[i, j]], s_2[[i, j]], epsilon = 1e-12);
             }
         }
 
@@ -179,8 +179,8 @@ mod tests {
 
         for i in 0..d.nrows() {
             for j in 0..d.ncols() {
-                assert!((d[[i, j]] - d[[j, i]]).abs() < 1e-12);
-                assert!((d[[i, j]] - d_2[[i, j]]).abs() < 1e-12);
+                assert_abs_diff_eq!(d[[i, j]], d[[j, i]], epsilon = 1e-12);
+                assert_abs_diff_eq!(d[[i, j]], d_2[[i, j]], epsilon = 1e-12);
             }
         }
     }
