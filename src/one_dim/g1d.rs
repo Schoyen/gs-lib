@@ -1,5 +1,5 @@
-use crate::math::double_factorial;
 use ndarray::Array1;
+use rgsl::gamma_beta::factorials::doublefact;
 
 #[derive(Debug, Copy, Clone)]
 pub struct G1D {
@@ -30,7 +30,7 @@ impl G1D {
         let df = if df_test == -1 {
             1.0
         } else {
-            double_factorial(df_test as i64) as f64
+            doublefact(df_test as u32)
         };
 
         (df / (4.0 * a).powi(i as i32)
