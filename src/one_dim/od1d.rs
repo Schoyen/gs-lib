@@ -119,9 +119,9 @@ mod tests {
         let g_0 = G1D::new(0, 1.0, -0.5, 'x');
         let g_1 = G1D::new(1, 0.7, 0.5, 'x');
         let g_2 = G1D::new(2, 1.2, 0.3, 'x');
-        let od_01 = OD1D::new(&g_0, &g_1);
-        let od_02 = OD1D::new(&g_0, &g_2);
-        let od_21 = OD1D::new(&g_2, &g_1);
+        let mut od_01 = OD1D::new(&g_0, &g_1);
+        let mut od_02 = OD1D::new(&g_0, &g_2);
+        let mut od_21 = OD1D::new(&g_2, &g_1);
 
         assert!((od_01.expansion_coefficients(0) - (-0.38969419)).abs() < 1e-7);
         assert!((od_01.expansion_coefficients(1) - 0.19484709).abs() < 1e-7);
