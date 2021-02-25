@@ -52,13 +52,14 @@ fn construct_multipole_moment_matrix_elements_inplace(
 
     for i in 0..l {
         let g_i = &gaussians[i];
-
-        s_e[[i, i]] = g_i.norm.powi(2) * s(e, center, OD1D::new(&g_i, &g_i));
+        s_e[[i, i]] =
+            g_i.norm.powi(2) * s(e, center, &mut OD1D::new(&g_i, &g_i));
 
         for j in (i + 1)..l {
             let g_j = &gaussians[j];
 
-            let val = g_i.norm * g_j.norm * s(e, center, OD1D::new(&g_i, &g_j));
+            let val =
+                g_i.norm * g_j.norm * s(e, center, &mut OD1D::new(&g_i, &g_j));
 
             s_e[[i, j]] = val;
             s_e[[j, i]] = val;
@@ -66,7 +67,7 @@ fn construct_multipole_moment_matrix_elements_inplace(
     }
 }
 
-pub fn s(e: u32, center: f64, od: OD1D) -> f64 {
+pub fn s(e: u32, center: f64, od: &mut OD1D) -> f64 {
     let mut val = 0.0;
 
     for t in 0..(std::cmp::min(od.i + od.j, e) + 1) {

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::G1D;
 
 pub struct OD1D<'a> {
@@ -15,6 +17,7 @@ pub struct OD1D<'a> {
     j_com: f64,
 
     exp_weight: f64,
+    coefficients: HashMap<(i32, i32, i32), f64>,
 }
 
 impl<'a> OD1D<'a> {
@@ -28,6 +31,8 @@ impl<'a> OD1D<'a> {
         let i_com = com - g_i.center; // X_PA
         let j_com = com - g_j.center; // X_PB
         let exp_weight = (-red_exp * center_diff.powi(2)).exp(); // K_AB
+        let mut coefficients = HashMap::new();
+        coefficients.insert((0, 0, 0), exp_weight);
 
         OD1D {
             g_i,
@@ -41,6 +46,7 @@ impl<'a> OD1D<'a> {
             i_com,
             j_com,
             exp_weight,
+            coefficients,
         }
     }
 
@@ -59,13 +65,15 @@ impl<'a> OD1D<'a> {
         res
     }
 
-    pub fn expansion_coefficients(&self, t: i32) -> f64 {
+    pub fn expansion_coefficients(&mut self, t: i32) -> f64 {
         self._expansion_coefficients(self.i as i32, self.j as i32, t)
     }
 
-    pub fn _expansion_coefficients(&self, i: i32, j: i32, t: i32) -> f64 {
-        if i == 0 && j == 0 && t == 0 {
-            return self.exp_weight;
+    pub fn _expansion_coefficients(&mut self, i: i32, j: i32, t: i32) -> f64 {
+        let key = (i, j, t);
+
+        if self.coefficients.contains_key(&key) {
+            return *self.coefficients.get(&key).unwrap();
         }
 
         if t < 0 || t > (i + j) || i < 0 || j < 0 {
@@ -73,17 +81,22 @@ impl<'a> OD1D<'a> {
         }
 
         if i == 0 {
-            return 1.0 / (2.0 * self.tot_exp)
+            let val = 1.0 / (2.0 * self.tot_exp)
                 * self._expansion_coefficients(i, j - 1, t - 1)
                 + self.j_com * self._expansion_coefficients(i, j - 1, t)
                 + ((t + 1) as f64)
                     * self._expansion_coefficients(i, j - 1, t + 1);
+            self.coefficients.insert((i, j, t), val);
+        } else {
+            let val = 1.0 / (2.0 * self.tot_exp)
+                * self._expansion_coefficients(i - 1, j, t - 1)
+                + self.i_com * self._expansion_coefficients(i - 1, j, t)
+                + ((t + 1) as f64)
+                    * self._expansion_coefficients(i - 1, j, t + 1);
+            self.coefficients.insert((i, j, t), val);
         }
 
-        1.0 / (2.0 * self.tot_exp)
-            * self._expansion_coefficients(i - 1, j, t - 1)
-            + self.i_com * self._expansion_coefficients(i - 1, j, t)
-            + ((t + 1) as f64) * self._expansion_coefficients(i - 1, j, t + 1)
+        return *self.coefficients.get(&key).unwrap();
     }
 }
 

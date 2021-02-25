@@ -34,7 +34,7 @@ pub fn construct_differential_operator_matrix_elements(
 
 fn d(e: u32, g_i: &G1D, g_j: &G1D) -> f64 {
     if e == 0 {
-        return s(0, 0.0, OD1D::new(g_i, g_j));
+        return s(0, 0.0, &mut OD1D::new(g_i, g_j));
     }
 
     let i = g_i.i;
