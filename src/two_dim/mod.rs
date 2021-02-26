@@ -1,9 +1,11 @@
 mod g2d;
+mod od2d;
 
 mod differential_operator;
 mod multipole_moment;
 
 pub use g2d::G2D;
+pub use od2d::OD2D;
 
 pub use differential_operator::{
     construct_differential_operator_matrix_elements,
