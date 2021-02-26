@@ -168,3 +168,65 @@ fn extended_bessel(n: i32, sigma: f64, delta: (f64, f64)) -> f64 {
 
     In_scaled(n, arg)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use approx::assert_abs_diff_eq;
+
+    #[test]
+    fn test_extended_bessel() {
+        let delta = (2.3, 0.7);
+        let sigma = 0.6;
+
+        assert_abs_diff_eq!(
+            extended_bessel(0, sigma, delta),
+            0.4189318801994202,
+        );
+        assert_abs_diff_eq!(
+            extended_bessel(1, sigma, delta),
+            -0.21536075261087415,
+        );
+        assert_abs_diff_eq!(
+            extended_bessel(2, sigma, delta),
+            0.06123928070731078,
+        );
+        assert_abs_diff_eq!(
+            extended_bessel(3, sigma, delta),
+            -0.011936152337454205,
+        );
+        assert_abs_diff_eq!(
+            extended_bessel(4, sigma, delta),
+            0.0017650268459473005,
+        );
+    }
+
+    #[test]
+    fn test_transpose_u() {
+        let gaussians = vec![
+            G2D::new((0, 0), 1.0, (0.0, 0.0)),
+            G2D::new((1, 0), 1.0, (0.0, 0.0)),
+            G2D::new((0, 1), 1.0, (0.0, 0.0)),
+            G2D::new((1, 1), 1.0, (0.0, 0.0)),
+        ];
+
+        let u = construct_coulomb_operator_matrix_elements(&gaussians);
+        let l = gaussians.len();
+
+        assert!(u.shape().len() == 4);
+
+        for &dim_len in u.shape().into_iter() {
+            assert!(dim_len == l);
+        }
+
+        for p in 0..l {
+            for q in 0..l {
+                for r in 0..l {
+                    for s in 0..l {
+                        assert_abs_diff_eq!(u[[p, q, r, s]], u[[r, s, p, q]]);
+                    }
+                }
+            }
+        }
+    }
+}
