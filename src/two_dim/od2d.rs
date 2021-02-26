@@ -7,15 +7,38 @@ pub struct OD2D<'a> {
 
     pub od_x: OD1D<'a>,
     pub od_y: OD1D<'a>,
+
+    pub tot_exp: f64,
+    pub center_diff: (f64, f64),
+
+    pub x_sum_lim: u32,
+    pub y_sum_lim: u32,
 }
 
 impl<'a> OD2D<'a> {
     pub fn new(g_a: &'a G2D, g_b: &'a G2D) -> Self {
+        let od_x = OD1D::new(&g_a.g_x, &g_b.g_x);
+        let od_y = OD1D::new(&g_a.g_y, &g_b.g_y);
+
+        assert!(od_x.tot_exp == od_y.tot_exp);
+
+        let tot_exp = od_x.tot_exp;
+
+        let x_sum_lim = od_x.i + od_x.j;
+        let y_sum_lim = od_y.i + od_y.j;
+
         OD2D {
             g_a,
             g_b,
-            od_x: OD1D::new(&g_a.g_x, &g_b.g_x),
-            od_y: OD1D::new(&g_a.g_y, &g_b.g_y),
+            od_x,
+            od_y,
+            tot_exp,
+            center_diff: (
+                g_a.g_x.center - g_b.g_x.center,
+                g_a.g_y.center - g_a.g_y.center,
+            ),
+            x_sum_lim,
+            y_sum_lim,
         }
     }
 
