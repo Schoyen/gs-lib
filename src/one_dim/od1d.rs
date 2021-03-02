@@ -11,7 +11,7 @@ pub struct OD1D<'a> {
     pub tot_exp: f64,
     red_exp: f64,
 
-    center_diff: f64,
+    pub center_diff: f64,
     pub com: f64,
     i_com: f64,
     j_com: f64,

@@ -26,6 +26,7 @@ impl<'a> OD2D<'a> {
 
         let x_sum_lim = od_x.i + od_x.j;
         let y_sum_lim = od_y.i + od_y.j;
+        let center_diff = (od_x.center_diff, od_y.center_diff);
 
         OD2D {
             g_a,
@@ -33,10 +34,7 @@ impl<'a> OD2D<'a> {
             od_x,
             od_y,
             tot_exp,
-            center_diff: (
-                g_a.g_x.center - g_b.g_x.center,
-                g_a.g_y.center - g_a.g_y.center,
-            ),
+            center_diff,
             x_sum_lim,
             y_sum_lim,
         }
