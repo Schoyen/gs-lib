@@ -1,5 +1,5 @@
 use super::G2D;
-use crate::one_dim::{G1D, OD1D};
+use crate::one_dim::OD1D;
 
 pub struct OD2D<'a> {
     pub g_a: &'a G2D,
