@@ -50,6 +50,7 @@ impl<'a> OD2D<'a> {
 mod tests {
     use super::*;
     use approx::assert_abs_diff_eq;
+    use rand::Rng;
 
     #[test]
     fn test_construction() {
@@ -144,5 +145,51 @@ mod tests {
             od_21_21.expansion_coefficients(2, 0),
             0.0976155768429821
         );
+    }
+
+    #[test]
+    fn test_symmetry_of_expansion_coefficients() {
+        let mut rng = rand::thread_rng();
+        let mut gaussians = Vec::new();
+
+        for _i in 0..6 {
+            gaussians.push(G2D::new(
+                (rng.gen_range(0..3), rng.gen_range(0..3)),
+                0.5 + rng.gen::<f64>(),
+                (
+                    2.0 * (rng.gen::<f64>() - 0.5),
+                    2.0 * (rng.gen::<f64>() - 0.5),
+                ),
+            ));
+        }
+
+        for i in 0..gaussians.len() {
+            let g_i = &gaussians[i];
+
+            for j in i..gaussians.len() {
+                let g_j = &gaussians[j];
+                let mut od_ij = OD2D::new(g_i, g_j);
+                let mut od_ji = OD2D::new(g_j, g_i);
+
+                assert!(od_ij.x_sum_lim == od_ji.x_sum_lim);
+                assert!(od_ij.y_sum_lim == od_ji.y_sum_lim);
+
+                for t in 0..(od_ij.x_sum_lim + 1) {
+                    for u in 0..(od_ij.y_sum_lim + 1) {
+                        let e_tu_ij =
+                            od_ij.expansion_coefficients(t as i32, u as i32);
+                        let e_ut_ij =
+                            od_ij.expansion_coefficients(u as i32, t as i32);
+                        let e_tu_ji =
+                            od_ji.expansion_coefficients(t as i32, u as i32);
+                        let e_ut_ji =
+                            od_ji.expansion_coefficients(u as i32, t as i32);
+
+                        assert_abs_diff_eq!(e_tu_ij, e_tu_ji);
+                        assert_abs_diff_eq!(e_ut_ij, e_ut_ji);
+                    }
+                }
+            }
+        }
     }
 }
