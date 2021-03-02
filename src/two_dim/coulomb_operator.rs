@@ -46,13 +46,21 @@ pub fn construct_coulomb_operator_matrix_element(
     let mut od_ac = OD2D::new(g_a, g_c);
     let mut od_bd = OD2D::new(g_b, g_d);
 
+    construct_coulomb_operator_matrix_element_od(&mut od_ac, &mut od_bd)
+}
+
+pub fn construct_coulomb_operator_matrix_element_od(
+    od_ac: &mut OD2D,
+    od_bd: &mut OD2D,
+) -> f64 {
     let p = od_ac.tot_exp;
     let q = od_bd.tot_exp;
-    let P = od_ac.center_diff;
-    let Q = od_bd.center_diff;
 
     let sigma = (p + q) / (4.0 * p * q);
-    let delta = (Q.0 - P.0, Q.1 - P.1);
+    let delta = (
+        od_bd.center_diff.0 - od_ac.center_diff.0,
+        od_bd.center_diff.1 - od_ac.center_diff.1,
+    );
 
     let mut val = 0.0;
 
