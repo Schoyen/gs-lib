@@ -101,6 +101,8 @@ impl<'a> OD1D<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use approx::assert_abs_diff_eq;
+    use rand::Rng;
 
     #[test]
     fn test_construction() {
@@ -128,5 +130,38 @@ mod tests {
         assert!((od_02.expansion_coefficients(1) - (-0.11658330)).abs() < 1e-7);
         assert!((od_21.expansion_coefficients(0) - 0.00476926).abs() < 1e-7);
         assert!((od_21.expansion_coefficients(2) - 0.00143238).abs() < 1e-7);
+    }
+
+    #[test]
+    fn test_symmetry_of_expansion_coefficients() {
+        let mut rng = rand::thread_rng();
+        let mut gaussians = Vec::new();
+
+        for _i in 0..6 {
+            gaussians.push(G1D::new(
+                rng.gen_range(0..4),
+                0.5 + rng.gen::<f64>(),
+                2.0 * (rng.gen::<f64>() - 0.5),
+                'x',
+            ));
+        }
+
+        for p in 0..gaussians.len() {
+            let g_p = &gaussians[p];
+
+            for q in p..gaussians.len() {
+                let g_q = &gaussians[q];
+
+                let mut od_pq = OD1D::new(g_p, g_q);
+                let mut od_qp = OD1D::new(g_q, g_p);
+
+                for t in 0..(od_pq.i + od_pq.j + 1) {
+                    let e_t_pq = od_pq.expansion_coefficients(t as i32);
+                    let e_t_qp = od_qp.expansion_coefficients(t as i32);
+
+                    assert_abs_diff_eq!(e_t_pq, e_t_qp);
+                }
+            }
+        }
     }
 }
