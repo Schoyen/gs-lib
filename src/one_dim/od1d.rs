@@ -16,7 +16,6 @@ pub struct OD1D<'a> {
     i_com: f64,
     j_com: f64,
 
-    exp_weight: f64,
     coefficients: HashMap<(i32, i32, i32), f64>,
 }
 
@@ -45,7 +44,6 @@ impl<'a> OD1D<'a> {
             com,
             i_com,
             j_com,
-            exp_weight,
             coefficients,
         }
     }
