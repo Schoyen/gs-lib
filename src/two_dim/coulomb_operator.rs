@@ -243,10 +243,10 @@ mod tests {
     #[test]
     fn test_transpose_u() {
         let gaussians = vec![
-            G2D::new((0, 0), 1.0, (0.0, 0.0)),
-            G2D::new((1, 0), 1.0, (0.0, 0.0)),
-            G2D::new((0, 1), 1.0, (0.0, 0.0)),
-            G2D::new((1, 1), 1.0, (0.0, 0.0)),
+            G2D::new((0, 0), 1.0, (1.0, 0.0)),
+            G2D::new((1, 0), 1.0, (0.0, 0.2)),
+            G2D::new((0, 1), 1.0, (0.2, -0.7)),
+            G2D::new((1, 1), 1.0, (-1.0, 0.3)),
         ];
 
         let u = construct_coulomb_operator_matrix_elements(&gaussians);
@@ -262,7 +262,7 @@ mod tests {
             for q in 0..l {
                 for r in 0..l {
                     for s in 0..l {
-                        assert_abs_diff_eq!(u[[p, q, r, s]], u[[r, s, p, q]]);
+                        assert_abs_diff_eq!(u[[p, q, r, s]], u[[q, p, s, r]]);
                     }
                 }
             }
