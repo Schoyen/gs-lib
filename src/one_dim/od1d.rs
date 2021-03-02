@@ -159,7 +159,7 @@ mod tests {
                     let e_t_pq = od_pq.expansion_coefficients(t as i32);
                     let e_t_qp = od_qp.expansion_coefficients(t as i32);
 
-                    assert_abs_diff_eq!(e_t_pq, e_t_qp);
+                    assert_abs_diff_eq!(e_t_pq, e_t_qp, epsilon = 1e-14);
                 }
             }
         }
