@@ -207,6 +207,37 @@ mod tests {
             extended_bessel(4, sigma, delta),
             0.0017650268459473005,
         );
+        assert_abs_diff_eq!(
+            extended_bessel(3, sigma, delta),
+            extended_bessel(3, sigma, (-delta.0, -delta.1)),
+        );
+        assert_abs_diff_eq!(
+            extended_bessel(4, sigma, delta),
+            extended_bessel(4, sigma, (-delta.0, -delta.1)),
+        );
+    }
+
+    #[test]
+    fn test_int_tilde() {
+        let delta = (2.3, 0.7);
+        let sigma = 0.6;
+
+        assert_abs_diff_eq!(
+            int_tilde(1, 2, sigma, delta),
+            int_tilde(2, 1, sigma, (delta.1, delta.0))
+        );
+        assert_abs_diff_eq!(
+            int_tilde(2, 2, sigma, delta),
+            int_tilde(2, 2, sigma, (delta.1, delta.0))
+        );
+        assert_abs_diff_eq!(
+            int_tilde(1, 2, sigma, delta),
+            -int_tilde(1, 2, sigma, (-delta.0, -delta.1))
+        );
+        assert_abs_diff_eq!(
+            int_tilde(2, 2, sigma, delta),
+            int_tilde(2, 2, sigma, (-delta.0, -delta.1))
+        );
     }
 
     #[test]
