@@ -181,6 +181,7 @@ fn extended_bessel(n: i32, sigma: f64, delta: (f64, f64)) -> f64 {
 mod tests {
     use super::*;
     use approx::assert_abs_diff_eq;
+    use rand::Rng;
 
     #[test]
     fn test_extended_bessel() {
@@ -263,6 +264,62 @@ mod tests {
                 for r in 0..l {
                     for s in 0..l {
                         assert_abs_diff_eq!(u[[p, q, r, s]], u[[q, p, s, r]]);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_u_symmetries() {
+        let mut rng = rand::thread_rng();
+        let mut gaussians = Vec::new();
+
+        for _i in 0..4 {
+            gaussians.push(G2D::new(
+                (rng.gen_range(0..2), rng.gen_range(0..2)),
+                0.5 + rng.gen::<f64>(),
+                (
+                    2.0 * (rng.gen::<f64>() - 0.5),
+                    2.0 * (rng.gen::<f64>() - 0.5),
+                ),
+            ));
+        }
+
+        for p in 0..gaussians.len() {
+            let g_p = &gaussians[p];
+
+            for q in 0..gaussians.len() {
+                let g_q = &gaussians[q];
+
+                for r in 0..gaussians.len() {
+                    let g_r = &gaussians[r];
+
+                    for s in 0..gaussians.len() {
+                        let g_s = &gaussians[s];
+
+                        let u_pqrs = construct_coulomb_operator_matrix_element(
+                            g_p, g_q, g_r, g_s,
+                        );
+                        let u_qpsr = construct_coulomb_operator_matrix_element(
+                            g_q, g_p, g_s, g_r,
+                        );
+                        assert_abs_diff_eq!(u_pqrs, u_qpsr);
+
+                        let u_rqps = construct_coulomb_operator_matrix_element(
+                            g_r, g_q, g_p, g_s,
+                        );
+                        assert_abs_diff_eq!(u_pqrs, u_rqps);
+
+                        let u_psrq = construct_coulomb_operator_matrix_element(
+                            g_p, g_s, g_r, g_q,
+                        );
+                        assert_abs_diff_eq!(u_pqrs, u_psrq);
+
+                        let u_rspq = construct_coulomb_operator_matrix_element(
+                            g_r, g_s, g_p, g_q,
+                        );
+                        assert_abs_diff_eq!(u_pqrs, u_rspq);
                     }
                 }
             }
