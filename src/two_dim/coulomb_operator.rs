@@ -605,7 +605,7 @@ mod tests {
             G2D::new((1, 1), 1.0, (-1.0, 0.3)),
         ];
 
-        let u = tests::construct_coulomb_operator_matrix_elements(&gaussians);
+        let u = super::construct_coulomb_operator_matrix_elements(&gaussians);
         let l = gaussians.len();
 
         assert!(u.shape().len() == 4);
@@ -656,27 +656,32 @@ mod tests {
                     for s in 0..gaussians.len() {
                         let g_s = &gaussians[s];
 
-                        let u_pqrs = construct_coulomb_operator_matrix_element(
-                            g_p, g_q, g_r, g_s,
-                        );
-                        let u_qpsr = construct_coulomb_operator_matrix_element(
-                            g_q, g_p, g_s, g_r,
-                        );
+                        let u_pqrs =
+                            super::construct_coulomb_operator_matrix_element(
+                                g_p, g_q, g_r, g_s,
+                            );
+                        let u_qpsr =
+                            super::construct_coulomb_operator_matrix_element(
+                                g_q, g_p, g_s, g_r,
+                            );
                         assert_abs_diff_eq!(u_pqrs, u_qpsr);
 
-                        let u_rqps = construct_coulomb_operator_matrix_element(
-                            g_r, g_q, g_p, g_s,
-                        );
+                        let u_rqps =
+                            super::construct_coulomb_operator_matrix_element(
+                                g_r, g_q, g_p, g_s,
+                            );
                         assert_abs_diff_eq!(u_pqrs, u_rqps);
 
-                        let u_psrq = construct_coulomb_operator_matrix_element(
-                            g_p, g_s, g_r, g_q,
-                        );
+                        let u_psrq =
+                            super::construct_coulomb_operator_matrix_element(
+                                g_p, g_s, g_r, g_q,
+                            );
                         assert_abs_diff_eq!(u_pqrs, u_psrq);
 
-                        let u_rspq = construct_coulomb_operator_matrix_element(
-                            g_r, g_s, g_p, g_q,
-                        );
+                        let u_rspq =
+                            super::construct_coulomb_operator_matrix_element(
+                                g_r, g_s, g_p, g_q,
+                            );
                         assert_abs_diff_eq!(u_pqrs, u_rspq);
                     }
                 }
