@@ -12,23 +12,135 @@ pub fn construct_coulomb_operator_matrix_elements(
 
     for a in 0..l {
         let g_a = &gaussians[a];
+        // TODO: Is it possible to reuse od_aa instead of making a copy? This
+        // would require some handling of two mutable references.
+        let mut od_aa = OD2D::new(g_a, g_a);
+        let mut od_aa_c = OD2D::new(g_a, g_a);
+
+        u[[a, a, a, a]] = g_a.norm.powi(4)
+            * construct_coulomb_operator_matrix_element_od(
+                &mut od_aa,
+                &mut od_aa_c,
+            );
 
         for b in 0..l {
+            if b == a {
+                continue;
+            }
+
             let g_b = &gaussians[b];
+            let mut od_ab = OD2D::new(g_a, g_b);
+            let mut od_ab_c = OD2D::new(g_a, g_b);
+            let mut od_ba = OD2D::new(g_b, g_a);
+            let mut od_bb = OD2D::new(g_b, g_b);
+
+            let val = g_a.norm
+                * g_b.norm.powi(3)
+                * construct_coulomb_operator_matrix_element_od(
+                    &mut od_ab, &mut od_bb,
+                );
+
+            u[[a, b, b, b]] = val;
+            u[[b, a, b, b]] = val;
+            u[[b, b, a, b]] = val;
+            u[[b, b, b, a]] = val;
+
+            let val = g_a.norm.powi(2)
+                * g_b.norm.powi(2)
+                * construct_coulomb_operator_matrix_element_od(
+                    &mut od_aa, &mut od_bb,
+                );
+
+            u[[a, b, b, a]] = val;
+            u[[b, a, b, a]] = val;
+
+            let val = g_a.norm.powi(2)
+                * g_b.norm.powi(2)
+                * construct_coulomb_operator_matrix_element_od(
+                    &mut od_ab,
+                    &mut od_ab_c,
+                );
+
+            u[[a, a, b, b]] = val;
+            u[[b, b, a, a]] = val;
+
+            // TODO: Check if this is equal to the previous val
+            let val = g_a.norm.powi(2)
+                * g_b.norm.powi(2)
+                * construct_coulomb_operator_matrix_element_od(
+                    &mut od_ab, &mut od_ba,
+                );
+
+            u[[a, b, b, a]] = val;
+            u[[b, a, a, b]] = val;
 
             for c in 0..l {
+                if c == b || c == a {
+                    continue;
+                }
+
                 let g_c = &gaussians[c];
 
-                for d in 0..l {
-                    let g_d = &gaussians[d];
+                let mut od_bc = OD2D::new(g_b, g_c);
+                let mut od_ac = OD2D::new(g_a, g_c);
 
-                    u[[a, b, c, d]] = g_a.norm
+                let val = g_a.norm.powi(2)
+                    * g_b.norm
+                    * g_c.norm
+                    * construct_coulomb_operator_matrix_element_od(
+                        &mut od_aa, &mut od_bc,
+                    );
+
+                u[[a, b, a, c]] = val;
+                u[[b, a, c, a]] = val;
+                u[[a, c, a, b]] = val;
+                u[[c, a, b, a]] = val;
+
+                let val = g_a.norm.powi(2)
+                    * g_b.norm
+                    * g_c.norm
+                    * construct_coulomb_operator_matrix_element_od(
+                        &mut od_ab, &mut od_ac,
+                    );
+
+                u[[a, a, b, c]] = val;
+                u[[a, a, c, b]] = val;
+                u[[b, c, a, a]] = val;
+                u[[c, b, a, a]] = val;
+
+                // TODO: Check if this is equal to the previous val
+                let val = g_a.norm.powi(2)
+                    * g_b.norm
+                    * g_c.norm
+                    * construct_coulomb_operator_matrix_element_od(
+                        &mut od_ac, &mut od_ba,
+                    );
+
+                u[[a, b, c, a]] = val;
+                u[[b, a, a, c]] = val;
+                u[[c, a, a, b]] = val;
+                u[[a, c, b, a]] = val;
+
+                for d in 0..l {
+                    if d == c || d == b || d == a {
+                        continue;
+                    }
+
+                    let g_d = &gaussians[d];
+                    let mut od_bd = OD2D::new(g_b, g_d);
+
+                    let val = g_a.norm
                         * g_b.norm
                         * g_c.norm
                         * g_d.norm
-                        * construct_coulomb_operator_matrix_element(
-                            g_a, g_b, g_c, g_d,
+                        * construct_coulomb_operator_matrix_element_od(
+                            &mut od_ac, &mut od_bd,
                         );
+
+                    u[[a, b, c, d]] = val;
+                    u[[b, a, d, c]] = val;
+                    u[[c, d, a, b]] = val;
+                    u[[d, c, b, a]] = val;
                 }
             }
         }
@@ -320,6 +432,88 @@ mod tests {
                             g_r, g_s, g_p, g_q,
                         );
                         assert_abs_diff_eq!(u_pqrs, u_rspq);
+                    }
+                }
+            }
+        }
+    }
+
+    fn construct_coulomb_operator_matrix_elements(
+        gaussians: &Vec<G2D>,
+    ) -> Array4<f64> {
+        let l = gaussians.len();
+
+        let mut u = Array::zeros((l, l, l, l));
+
+        for a in 0..l {
+            let g_a = &gaussians[a];
+
+            for b in 0..l {
+                let g_b = &gaussians[b];
+
+                for c in 0..l {
+                    let g_c = &gaussians[c];
+
+                    for d in 0..l {
+                        let g_d = &gaussians[d];
+
+                        u[[a, b, c, d]] = g_a.norm
+                            * g_b.norm
+                            * g_c.norm
+                            * g_d.norm
+                            * construct_coulomb_operator_matrix_element(
+                                g_a, g_b, g_c, g_d,
+                            );
+                    }
+                }
+            }
+        }
+
+        u
+    }
+
+    #[test]
+    fn compare_coulomb_methods() {
+        let mut rng = rand::thread_rng();
+        let mut gaussians = Vec::new();
+
+        for _i in 0..4 {
+            gaussians.push(G2D::new(
+                (rng.gen_range(0..2), rng.gen_range(0..2)),
+                0.5 + rng.gen::<f64>(),
+                (
+                    2.0 * (rng.gen::<f64>() - 0.5),
+                    2.0 * (rng.gen::<f64>() - 0.5),
+                ),
+            ));
+        }
+
+        let l = gaussians.len();
+
+        let u_test =
+            tests::construct_coulomb_operator_matrix_elements(&gaussians);
+        let u_perm = construct_coulomb_operator_matrix_elements(&gaussians);
+
+        for p in 0..l {
+            for q in 0..l {
+                for r in 0..l {
+                    for s in 0..l {
+                        assert_abs_diff_eq!(
+                            u_test[[p, q, r, s]],
+                            u_perm[[p, q, r, s]]
+                        );
+                        assert_abs_diff_eq!(
+                            u_test[[p, q, r, s]],
+                            u_test[[r, q, p, s]],
+                        );
+                        assert_abs_diff_eq!(
+                            u_test[[p, q, r, s]],
+                            u_test[[p, s, r, q]],
+                        );
+                        assert_abs_diff_eq!(
+                            u_test[[p, q, r, s]],
+                            u_test[[r, s, p, q]],
+                        );
                     }
                 }
             }
