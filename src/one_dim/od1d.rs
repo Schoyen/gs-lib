@@ -68,13 +68,15 @@ impl<'a> OD1D<'a> {
     }
 
     pub fn _expansion_coefficients(&mut self, i: i32, j: i32, t: i32) -> f64 {
+        assert!(i >= 0 && j >= 0);
+
         let key = (i, j, t);
 
         if self.coefficients.contains_key(&key) {
             return *self.coefficients.get(&key).unwrap();
         }
 
-        if t < 0 || t > (i + j) || i < 0 || j < 0 {
+        if t < 0 || t > (i + j) {
             return 0.0;
         }
 
