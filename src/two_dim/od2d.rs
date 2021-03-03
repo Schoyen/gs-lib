@@ -10,6 +10,7 @@ pub struct OD2D<'a> {
 
     pub tot_exp: f64,
     pub center_diff: (f64, f64),
+    pub com: (f64, f64),
 
     pub x_sum_lim: u32,
     pub y_sum_lim: u32,
@@ -27,6 +28,7 @@ impl<'a> OD2D<'a> {
         let x_sum_lim = od_x.i + od_x.j;
         let y_sum_lim = od_y.i + od_y.j;
         let center_diff = (od_x.center_diff, od_y.center_diff);
+        let com = (od_x.com, od_y.com);
 
         OD2D {
             g_a,
@@ -35,6 +37,7 @@ impl<'a> OD2D<'a> {
             od_y,
             tot_exp,
             center_diff,
+            com,
             x_sum_lim,
             y_sum_lim,
         }
