@@ -65,9 +65,8 @@ pub fn l_rec(e: u32, f: u32, center: f64, g_i: &G1D, g_j: &G1D) -> f64 {
                 l_rec(e, f - 1, center, g_i, &g_j.decrement_i())
             } else {
                 0.0
-            } - 2.0
-                * g_j.a
-                * l_rec(e, f - 1, center, g_i, &g_j.increment_i()));
+            })
+            - 2.0 * g_j.a * l_rec(e, f - 1, center, g_i, &g_j.increment_i());
     }
 
     l_rec(e - 1, f, center, &g_i.increment_i(), g_j)
