@@ -48,6 +48,15 @@ impl G1D {
     pub fn evaluate(&self, x: &Array1<f64>, with_norm: bool) -> Array1<f64> {
         x.mapv(|x| self.evaluate_point(x, with_norm))
     }
+
+    pub fn decrement_i(&self) -> G1D {
+        assert!(self.i > 0);
+        G1D::new(self.i - 1, self.a, self.center, self.symbol)
+    }
+
+    pub fn increment_i(&self) -> G1D {
+        G1D::new(self.i + 1, self.a, self.center, self.symbol)
+    }
 }
 
 #[cfg(test)]
@@ -84,5 +93,22 @@ mod tests {
 
             g_c = g;
         }
+    }
+
+    #[test]
+    fn test_inc_and_dec() {
+        let g_1 = G1D::new(1, 0.5, 0.7, 'y');
+        let g_2 = g_1.increment_i();
+        let g_0 = g_1.decrement_i();
+
+        assert!(g_1.i == g_2.i - 1);
+        assert!(g_1.a == g_2.a);
+        assert!(g_1.center == g_2.center);
+        assert!(g_1.symbol == g_2.symbol);
+
+        assert!(g_1.i == g_0.i + 1);
+        assert!(g_1.a == g_0.a);
+        assert!(g_1.center == g_0.center);
+        assert!(g_1.symbol == g_0.symbol);
     }
 }
