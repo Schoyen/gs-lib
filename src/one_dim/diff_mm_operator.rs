@@ -169,7 +169,7 @@ mod tests {
             vec![G1D::new(0, 2.0, 2.0, 'x'), G1D::new(0, 2.0, -2.0, 'x')];
 
         let s = tests::construct_overlap_matrix_elements(&g_list);
-        let s_2 = construct_overlap_matrix_elements(&g_list);
+        let s_2 = super::construct_overlap_matrix_elements(&g_list);
 
         assert_eq!(s.nrows(), s_2.nrows());
         assert_eq!(s.ncols(), s_2.ncols());
@@ -187,7 +187,7 @@ mod tests {
             G1D::new(2, 1.0, 0.0, 'x'),
         ];
 
-        let s = construct_overlap_matrix_elements(&gaussians);
+        let s = super::construct_overlap_matrix_elements(&gaussians);
         let s_2 = tests::construct_overlap_matrix_elements(&gaussians);
 
         for i in 0..s.nrows() {
@@ -228,7 +228,8 @@ mod tests {
 
         let d =
             tests::construct_multipole_moment_matrix_elements(1, 1.0, &g_list);
-        let d_2 = construct_multipole_moment_matrix_elements(1, 1.0, &g_list);
+        let d_2 =
+            super::construct_multipole_moment_matrix_elements(1, 1.0, &g_list);
 
         assert_eq!(d.nrows(), d_2.nrows());
         assert_eq!(d.ncols(), d_2.ncols());
@@ -299,12 +300,14 @@ mod tests {
             G1D::new(2, 1.0, 0.0, 'x'),
         ];
 
-        let t = tests::construct_kinetic_operator_matrix_elements(&gaussians);
+        let t = super::construct_kinetic_operator_matrix_elements(&gaussians);
+        let t_2 = tests::construct_kinetic_operator_matrix_elements(&gaussians);
         assert!(t.is_square());
 
         for i in 0..t.nrows() {
             for j in 0..t.ncols() {
                 assert_abs_diff_eq!(t[[i, j]], t[[j, i]]);
+                assert_abs_diff_eq!(t[[i, j]], t_2[[i, j]], epsilon = 1e-12);
             }
         }
     }
