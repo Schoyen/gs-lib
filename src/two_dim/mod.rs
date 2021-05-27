@@ -3,6 +3,7 @@ mod od2d;
 
 mod coulomb_operator;
 mod diff_mm_operator;
+mod gaussian_operator;
 
 pub use g2d::G2D;
 pub use od2d::OD2D;
@@ -16,3 +17,4 @@ pub use diff_mm_operator::{
     construct_multipole_moment_matrix_elements,
     construct_overlap_matrix_elements,
 };
+pub use gaussian_operator::construct_gaussian_operator_matrix_elements;
