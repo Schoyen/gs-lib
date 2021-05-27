@@ -138,18 +138,6 @@ pub fn construct_coulomb_operator_matrix_elements(
     u
 }
 
-pub fn construct_coulomb_operator_matrix_element(
-    g_a: &G2D,
-    g_b: &G2D,
-    g_c: &G2D,
-    g_d: &G2D,
-) -> f64 {
-    let mut od_ac = OD2D::new(g_a, g_c);
-    let mut od_bd = OD2D::new(g_b, g_d);
-
-    construct_coulomb_operator_matrix_element_od(&mut od_ac, &mut od_bd)
-}
-
 pub fn construct_coulomb_operator_matrix_element_od(
     od_ac: &mut OD2D,
     od_bd: &mut OD2D,
@@ -287,6 +275,18 @@ mod tests {
     use super::*;
     use approx::assert_abs_diff_eq;
     use rand::Rng;
+
+    fn construct_coulomb_operator_matrix_element(
+        g_a: &G2D,
+        g_b: &G2D,
+        g_c: &G2D,
+        g_d: &G2D,
+    ) -> f64 {
+        let mut od_ac = OD2D::new(g_a, g_c);
+        let mut od_bd = OD2D::new(g_b, g_d);
+
+        construct_coulomb_operator_matrix_element_od(&mut od_ac, &mut od_bd)
+    }
 
     #[test]
     fn test_extended_bessel() {
@@ -657,29 +657,29 @@ mod tests {
                         let g_s = &gaussians[s];
 
                         let u_pqrs =
-                            super::construct_coulomb_operator_matrix_element(
+                            tests::construct_coulomb_operator_matrix_element(
                                 g_p, g_q, g_r, g_s,
                             );
                         let u_qpsr =
-                            super::construct_coulomb_operator_matrix_element(
+                            tests::construct_coulomb_operator_matrix_element(
                                 g_q, g_p, g_s, g_r,
                             );
                         assert_abs_diff_eq!(u_pqrs, u_qpsr);
 
                         let u_rqps =
-                            super::construct_coulomb_operator_matrix_element(
+                            tests::construct_coulomb_operator_matrix_element(
                                 g_r, g_q, g_p, g_s,
                             );
                         assert_abs_diff_eq!(u_pqrs, u_rqps);
 
                         let u_psrq =
-                            super::construct_coulomb_operator_matrix_element(
+                            tests::construct_coulomb_operator_matrix_element(
                                 g_p, g_s, g_r, g_q,
                             );
                         assert_abs_diff_eq!(u_pqrs, u_psrq);
 
                         let u_rspq =
-                            super::construct_coulomb_operator_matrix_element(
+                            tests::construct_coulomb_operator_matrix_element(
                                 g_r, g_s, g_p, g_q,
                             );
                         assert_abs_diff_eq!(u_pqrs, u_rspq);
