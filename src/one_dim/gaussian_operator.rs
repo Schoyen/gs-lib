@@ -34,7 +34,7 @@ fn g_op(op: &G1D, g_i: &G1D, g_j: &G1D) -> f64 {
         val += od.expansion_coefficients(t as i32) * p_rec(t, op, &g_0);
     }
 
-    -val
+    val
 }
 
 fn p_rec(t: u32, op: &G1D, g_l: &G1D) -> f64 {
