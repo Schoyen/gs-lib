@@ -9,7 +9,6 @@ pub struct OD1D<'a> {
     pub i: u32,
     pub j: u32,
     pub tot_exp: f64,
-    red_exp: f64,
 
     pub center_diff: f64,
     pub com: f64,
@@ -39,7 +38,6 @@ impl<'a> OD1D<'a> {
             i,
             j,
             tot_exp,
-            red_exp,
             center_diff,
             com,
             i_com,
@@ -112,7 +110,6 @@ mod tests {
         let g_1 = G1D::new(1, 1.0, 0.5, 'x');
         let od_01 = OD1D::new(&g_0, &g_1);
 
-        assert_eq!(od_01.red_exp, g_0.a * g_1.a / (g_0.a + g_1.a));
         assert_eq!(od_01.center_diff, g_0.center - g_1.center);
     }
 
