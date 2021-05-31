@@ -155,10 +155,20 @@ pub fn construct_coulomb_operator_matrix_element_od(
             let e_ac = (-1.0f64).powi((t + u) as i32)
                 * od_ac.expansion_coefficients(t as i32, u as i32);
 
+            // Note: Hacky optimization. This needs to be tested
+            if e_ac.abs() < 1e-12 {
+                continue;
+            }
+
             for tau in 0..(od_bd.x_sum_lim + 1) {
                 for nu in 0..(od_bd.y_sum_lim + 1) {
                     let e_bd =
                         od_bd.expansion_coefficients(tau as i32, nu as i32);
+
+                    // Note: Hacky optimization. This needs to be tested
+                    if e_bd.abs() < 1e-12 {
+                        continue;
+                    }
 
                     val += e_ac
                         * e_bd
