@@ -146,6 +146,7 @@ pub fn construct_coulomb_operator_matrix_element_od(
     let q = od_bd.tot_exp;
 
     let sigma = (p + q) / (4.0 * p * q);
+    let arg = 1.0 / (4.0 * sigma);
     let delta = (od_bd.com.0 - od_ac.com.0, od_bd.com.1 - od_ac.com.1);
 
     let mut val = 0.0;
@@ -172,10 +173,10 @@ pub fn construct_coulomb_operator_matrix_element_od(
 
                     val += e_ac
                         * e_bd
-                        * int_tilde_q(
+                        * int_twiddle(
                             (t + tau) as i32,
                             (u + nu) as i32,
-                            sigma,
+                            arg,
                             delta,
                         );
                 }
@@ -188,103 +189,157 @@ pub fn construct_coulomb_operator_matrix_element_od(
         * val
 }
 
-fn int_tilde_q(t: i32, u: i32, sigma: f64, delta: (f64, f64)) -> f64 {
-    int_tilde_rec_q(0, t, u, sigma, delta)
+fn int_twiddle(t: i32, u: i32, p: f64, sigma: (f64, f64)) -> f64 {
+    int_twiddle_rec(0, t, u, p, sigma)
 }
 
-fn int_tilde_rec_q(
-    n: i32,
-    t: i32,
-    u: i32,
-    sigma: f64,
-    delta: (f64, f64),
-) -> f64 {
-    assert!(n >= 0);
+fn int_twiddle_rec(n: i32, t: i32, u: i32, p: f64, sigma: (f64, f64)) -> f64 {
+    assert!(n >= -1);
+    assert!(t >= -1);
+    assert!(u >= -1);
 
     if t < 0 || u < 0 {
         return 0.0;
     }
 
+    if n == -1 {
+        return int_twiddle_rec(-n, t, u, p, sigma);
+    }
+
     if t == 0 && u == 0 {
-        return extended_bessel(n, sigma, delta);
+        let arg = -p * (sigma.0.powi(2) + sigma.1.powi(2)) / 2.0;
+        return In_scaled(n, arg);
     }
 
-    let mut pre_factor = -1.0 / (8.0 * sigma);
-    let mut val = 0.0;
+    let pre_factor = -p / 2.0;
 
-    if n == 0 {
-        pre_factor *= 2.0;
-
-        if t == 0 {
-            val += delta.1
-                * (int_tilde_rec_q(n, t, u - 1, sigma, delta)
-                    + int_tilde_rec_q(n + 1, t, u - 1, sigma, delta));
-
-            if u > 1 {
-                val += ((u - 1) as f64)
-                    * (int_tilde_rec_q(n, t, u - 2, sigma, delta)
-                        + int_tilde_rec_q(n + 1, t, u - 2, sigma, delta));
-            }
-
-            return val * pre_factor;
-        }
-
-        val += delta.0
-            * (int_tilde_rec_q(n, t - 1, u, sigma, delta)
-                + int_tilde_rec_q(n + 1, t - 1, u, sigma, delta));
-
-        if t > 1 {
-            val += ((t - 1) as f64)
-                * (int_tilde_rec_q(n, t - 2, u, sigma, delta)
-                    + int_tilde_rec_q(n + 1, t - 2, u, sigma, delta));
-        }
-
-        return val * pre_factor;
+    if t > 0 {
+        return pre_factor
+            * (((t - 1) as f64)
+                * (int_twiddle_rec(n - 1, t - 2, u, p, sigma)
+                    + 2.0 * int_twiddle_rec(n, t - 2, u, p, sigma)
+                    + int_twiddle_rec(n + 1, t - 2, u, p, sigma))
+                + sigma.0
+                    * (int_twiddle_rec(n - 1, t - 1, u, p, sigma)
+                        + 2.0 * int_twiddle_rec(n, t - 1, u, p, sigma)
+                        + int_twiddle_rec(n + 1, t - 1, u, p, sigma)));
     }
 
-    if t == 0 {
-        val += delta.1
-            * (int_tilde_rec_q(n - 1, t, u - 1, sigma, delta)
-                + 2.0 * int_tilde_rec_q(n, t, u - 1, sigma, delta)
-                + int_tilde_rec_q(n + 1, t, u - 1, sigma, delta));
-
-        if u > 1 {
-            val += ((u - 1) as f64)
-                * (int_tilde_rec_q(n - 1, t, u - 2, sigma, delta)
-                    + 2.0 * int_tilde_rec_q(n, t, u - 2, sigma, delta)
-                    + int_tilde_rec_q(n + 1, t, u - 2, sigma, delta));
-        }
-
-        return val * pre_factor;
-    }
-
-    val += delta.0
-        * (int_tilde_rec_q(n - 1, t - 1, u, sigma, delta)
-            + 2.0 * int_tilde_rec_q(n, t - 1, u, sigma, delta)
-            + int_tilde_rec_q(n + 1, t - 1, u, sigma, delta));
-
-    if t > 1 {
-        val += ((t - 1) as f64)
-            * (int_tilde_rec_q(n - 1, t - 2, u, sigma, delta)
-                + 2.0 * int_tilde_rec_q(n, t - 2, u, sigma, delta)
-                + int_tilde_rec_q(n + 1, t - 2, u, sigma, delta));
-    }
-
-    val * pre_factor
+    pre_factor
+        * (((u - 1) as f64)
+            * (int_twiddle_rec(n - 1, t, u - 2, p, sigma)
+                + 2.0 * int_twiddle_rec(n, t, u - 2, p, sigma)
+                + int_twiddle_rec(n + 1, t, u - 2, p, sigma))
+            + sigma.1
+                * (int_twiddle_rec(n - 1, t, u - 1, p, sigma)
+                    + 2.0 * int_twiddle_rec(n, t, u - 1, p, sigma)
+                    + int_twiddle_rec(n + 1, t, u - 1, p, sigma)))
 }
 
-fn extended_bessel(n: i32, sigma: f64, delta: (f64, f64)) -> f64 {
-    let delta_sq = delta.0.powi(2) + delta.1.powi(2);
-    let arg = -delta_sq / (8.0 * sigma);
-
-    In_scaled(n, arg)
-}
+// fn int_tilde_q(t: i32, u: i32, sigma: f64, delta: (f64, f64)) -> f64 {
+//     int_tilde_rec_q(0, t, u, sigma, delta)
+// }
+//
+// fn int_tilde_rec_q(
+//     n: i32,
+//     t: i32,
+//     u: i32,
+//     sigma: f64,
+//     delta: (f64, f64),
+// ) -> f64 {
+//     assert!(n >= 0);
+//
+//     if t < 0 || u < 0 {
+//         return 0.0;
+//     }
+//
+//     if t == 0 && u == 0 {
+//         return extended_bessel(n, sigma, delta);
+//     }
+//
+//     let mut pre_factor = -1.0 / (8.0 * sigma);
+//     let mut val = 0.0;
+//
+//     if n == 0 {
+//         pre_factor *= 2.0;
+//
+//         if t == 0 {
+//             val += delta.1
+//                 * (int_tilde_rec_q(n, t, u - 1, sigma, delta)
+//                     + int_tilde_rec_q(n + 1, t, u - 1, sigma, delta));
+//
+//             if u > 1 {
+//                 val += ((u - 1) as f64)
+//                     * (int_tilde_rec_q(n, t, u - 2, sigma, delta)
+//                         + int_tilde_rec_q(n + 1, t, u - 2, sigma, delta));
+//             }
+//
+//             return val * pre_factor;
+//         }
+//
+//         val += delta.0
+//             * (int_tilde_rec_q(n, t - 1, u, sigma, delta)
+//                 + int_tilde_rec_q(n + 1, t - 1, u, sigma, delta));
+//
+//         if t > 1 {
+//             val += ((t - 1) as f64)
+//                 * (int_tilde_rec_q(n, t - 2, u, sigma, delta)
+//                     + int_tilde_rec_q(n + 1, t - 2, u, sigma, delta));
+//         }
+//
+//         return val * pre_factor;
+//     }
+//
+//     if t == 0 {
+//         val += delta.1
+//             * (int_tilde_rec_q(n - 1, t, u - 1, sigma, delta)
+//                 + 2.0 * int_tilde_rec_q(n, t, u - 1, sigma, delta)
+//                 + int_tilde_rec_q(n + 1, t, u - 1, sigma, delta));
+//
+//         if u > 1 {
+//             val += ((u - 1) as f64)
+//                 * (int_tilde_rec_q(n - 1, t, u - 2, sigma, delta)
+//                     + 2.0 * int_tilde_rec_q(n, t, u - 2, sigma, delta)
+//                     + int_tilde_rec_q(n + 1, t, u - 2, sigma, delta));
+//         }
+//
+//         return val * pre_factor;
+//     }
+//
+//     val += delta.0
+//         * (int_tilde_rec_q(n - 1, t - 1, u, sigma, delta)
+//             + 2.0 * int_tilde_rec_q(n, t - 1, u, sigma, delta)
+//             + int_tilde_rec_q(n + 1, t - 1, u, sigma, delta));
+//
+//     if t > 1 {
+//         val += ((t - 1) as f64)
+//             * (int_tilde_rec_q(n - 1, t - 2, u, sigma, delta)
+//                 + 2.0 * int_tilde_rec_q(n, t - 2, u, sigma, delta)
+//                 + int_tilde_rec_q(n + 1, t - 2, u, sigma, delta));
+//     }
+//
+//     val * pre_factor
+// }
+//
+// fn extended_bessel(n: i32, sigma: f64, delta: (f64, f64)) -> f64 {
+//     let delta_sq = delta.0.powi(2) + delta.1.powi(2);
+//     let arg = -delta_sq / (8.0 * sigma);
+//
+//     In_scaled(n, arg)
+// }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use approx::assert_abs_diff_eq;
     use rand::Rng;
+
+    fn extended_bessel(n: i32, sigma: f64, delta: (f64, f64)) -> f64 {
+        let delta_sq = delta.0.powi(2) + delta.1.powi(2);
+        let arg = -delta_sq / (8.0 * sigma);
+
+        In_scaled(n, arg)
+    }
 
     fn construct_coulomb_operator_matrix_element(
         g_a: &G2D,
@@ -466,10 +521,10 @@ mod tests {
 
                         let val_q = e_ac_q
                             * e_bd_q
-                            * int_tilde_q(
+                            * int_twiddle(
                                 (t + tau) as i32,
                                 (u + nu) as i32,
-                                sigma_r,
+                                1.0 / (4.0 * sigma_r),
                                 delta_r,
                             );
                         let val = e_ac
@@ -562,34 +617,34 @@ mod tests {
 
                         val_rr += e_ac
                             * e_bd
-                            * int_tilde_q(
+                            * int_twiddle(
                                 (t + tau) as i32,
                                 (u + nu) as i32,
-                                sigma_r,
+                                1.0 / (4.0 * sigma_r),
                                 delta_rr,
                             );
                         val_lr += e_ca
                             * e_bd
-                            * int_tilde_q(
+                            * int_twiddle(
                                 (t + tau) as i32,
                                 (u + nu) as i32,
-                                sigma_r,
+                                1.0 / (4.0 * sigma_r),
                                 delta_lr,
                             );
                         val_rl += e_ac
                             * e_db
-                            * int_tilde_q(
+                            * int_twiddle(
                                 (t + tau) as i32,
                                 (u + nu) as i32,
-                                sigma_r,
+                                1.0 / (4.0 * sigma_r),
                                 delta_rl,
                             );
                         val_ll += e_ca
                             * e_db
-                            * int_tilde_q(
+                            * int_twiddle(
                                 (t + tau) as i32,
                                 (u + nu) as i32,
-                                sigma_l,
+                                1.0 / (4.0 * sigma_r),
                                 delta_ll,
                             );
 
