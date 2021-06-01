@@ -1,7 +1,39 @@
-use ndarray::{Array, Array4};
+use ndarray::{Array, Array2, Array4};
 use rgsl::bessel::In_scaled;
 
 use super::{G2D, OD2D};
+
+pub fn construct_coulomb_attraction_operator_matrix_elements(
+    center: (f64, f64),
+    gaussians: &Vec<G2D>,
+) -> Array2<f64> {
+    let l = gaussians.len();
+
+    let mut v_ab = Array::zeros((l, l));
+
+    for a in 0..l {
+        let g_a = &gaussians[a];
+
+        v_ab[[a, a]] = g_a.norm.powi(2)
+            * construct_coulomb_attraction_operator_matrix_element(
+                center, g_a, g_a,
+            );
+
+        for b in (a + 1)..l {
+            let g_b = &gaussians[b];
+            let val = g_a.norm
+                * g_b.norm
+                * construct_coulomb_attraction_operator_matrix_element(
+                    center, g_a, g_b,
+                );
+
+            v_ab[[a, b]] = val;
+            v_ab[[b, a]] = val;
+        }
+    }
+
+    v_ab
+}
 
 pub fn construct_coulomb_interaction_operator_matrix_elements(
     gaussians: &Vec<G2D>,
@@ -136,6 +168,25 @@ pub fn construct_coulomb_interaction_operator_matrix_elements(
     // dbg!(counter);
 
     u
+}
+
+pub fn construct_coulomb_attraction_operator_matrix_element(
+    center: (f64, f64),
+    g_a: &G2D,
+    g_b: &G2D,
+) -> f64 {
+    let mut od_ab = OD2D::new(g_a, g_b);
+    let sigma = (od_ab.com.0 - center.0, od_ab.com.1 - center.1);
+    let mut val = 0.0;
+
+    for t in 0..(od_ab.x_sum_lim + 1) {
+        for u in 0..(od_ab.y_sum_lim + 1) {
+            val += od_ab.expansion_coefficients(t as i32, u as i32)
+                * int_twiddle(t as i32, u as i32, od_ab.tot_exp, sigma);
+        }
+    }
+
+    val * std::f64::consts::PI * (std::f64::consts::PI / od_ab.tot_exp).sqrt()
 }
 
 pub fn construct_coulomb_interaction_operator_matrix_element_od(
@@ -480,6 +531,31 @@ mod tests {
         }
 
         val * pre_factor
+    }
+
+    #[test]
+    fn test_coulomb_attraction() {
+        let mut rng = rand::thread_rng();
+        let center = (rng.gen::<f64>(), rng.gen::<f64>());
+        let mut gaussians = Vec::new();
+
+        for _i in 0..4 {
+            gaussians.push(G2D::new(
+                (rng.gen_range(0..2), rng.gen_range(0..2)),
+                0.5 + rng.gen::<f64>(),
+                (
+                    2.0 * (rng.gen::<f64>() - 0.5),
+                    2.0 * (rng.gen::<f64>() - 0.5),
+                ),
+            ));
+        }
+
+        let v_ab = construct_coulomb_attraction_operator_matrix_elements(
+            center, &gaussians,
+        );
+
+        assert!(v_ab.nrows() == gaussians.len());
+        assert!(v_ab.ncols() == gaussians.len());
     }
 
     #[test]
