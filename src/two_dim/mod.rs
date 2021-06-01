@@ -8,7 +8,7 @@ mod gaussian_operator;
 pub use g2d::G2D;
 pub use od2d::OD2D;
 
-pub use coulomb_operator::construct_coulomb_operator_matrix_elements;
+pub use coulomb_operator::construct_coulomb_interaction_operator_matrix_elements;
 pub use diff_mm_operator::{
     construct_angular_moment_z_matrix_elements,
     construct_diff_mm_matrix_elements,

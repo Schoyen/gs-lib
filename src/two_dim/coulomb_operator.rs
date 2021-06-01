@@ -3,7 +3,7 @@ use rgsl::bessel::In_scaled;
 
 use super::{G2D, OD2D};
 
-pub fn construct_coulomb_operator_matrix_elements(
+pub fn construct_coulomb_interaction_operator_matrix_elements(
     gaussians: &Vec<G2D>,
 ) -> Array4<f64> {
     let l = gaussians.len();
@@ -19,7 +19,7 @@ pub fn construct_coulomb_operator_matrix_elements(
         let mut od_aa_c = OD2D::new(g_a, g_a);
 
         u[[a, a, a, a]] = g_a.norm.powi(4)
-            * construct_coulomb_operator_matrix_element_od(
+            * construct_coulomb_interaction_operator_matrix_element_od(
                 &mut od_aa,
                 &mut od_aa_c,
             );
@@ -37,7 +37,7 @@ pub fn construct_coulomb_operator_matrix_elements(
 
             let val = g_a.norm
                 * g_b.norm.powi(3)
-                * construct_coulomb_operator_matrix_element_od(
+                * construct_coulomb_interaction_operator_matrix_element_od(
                     &mut od_ab, &mut od_bb,
                 );
             // counter += 1;
@@ -49,7 +49,7 @@ pub fn construct_coulomb_operator_matrix_elements(
 
             let val = g_a.norm.powi(2)
                 * g_b.norm.powi(2)
-                * construct_coulomb_operator_matrix_element_od(
+                * construct_coulomb_interaction_operator_matrix_element_od(
                     &mut od_aa, &mut od_bb,
                 );
 
@@ -58,7 +58,7 @@ pub fn construct_coulomb_operator_matrix_elements(
 
             let val = g_a.norm.powi(2)
                 * g_b.norm.powi(2)
-                * construct_coulomb_operator_matrix_element_od(
+                * construct_coulomb_interaction_operator_matrix_element_od(
                     &mut od_ab, &mut od_ba,
                 );
             // counter += 1;
@@ -81,7 +81,7 @@ pub fn construct_coulomb_operator_matrix_elements(
                 let val = g_a.norm.powi(2)
                     * g_b.norm
                     * g_c.norm
-                    * construct_coulomb_operator_matrix_element_od(
+                    * construct_coulomb_interaction_operator_matrix_element_od(
                         &mut od_aa, &mut od_bc,
                     );
                 // counter += 1;
@@ -94,7 +94,7 @@ pub fn construct_coulomb_operator_matrix_elements(
                 let val = g_a.norm.powi(2)
                     * g_b.norm
                     * g_c.norm
-                    * construct_coulomb_operator_matrix_element_od(
+                    * construct_coulomb_interaction_operator_matrix_element_od(
                         &mut od_ab, &mut od_ac,
                     );
                 // counter += 1;
@@ -120,7 +120,7 @@ pub fn construct_coulomb_operator_matrix_elements(
                         * g_b.norm
                         * g_c.norm
                         * g_d.norm
-                        * construct_coulomb_operator_matrix_element_od(
+                        * construct_coulomb_interaction_operator_matrix_element_od(
                             &mut od_ac, &mut od_bd,
                         );
                     // counter += 1;
@@ -138,7 +138,7 @@ pub fn construct_coulomb_operator_matrix_elements(
     u
 }
 
-pub fn construct_coulomb_operator_matrix_element_od(
+pub fn construct_coulomb_interaction_operator_matrix_element_od(
     od_ac: &mut OD2D,
     od_bd: &mut OD2D,
 ) -> f64 {
@@ -350,7 +350,9 @@ mod tests {
         let mut od_ac = OD2D::new(g_a, g_c);
         let mut od_bd = OD2D::new(g_b, g_d);
 
-        construct_coulomb_operator_matrix_element_od(&mut od_ac, &mut od_bd)
+        construct_coulomb_interaction_operator_matrix_element_od(
+            &mut od_ac, &mut od_bd,
+        )
     }
 
     #[test]
@@ -670,7 +672,9 @@ mod tests {
             G2D::new((1, 1), 1.0, (-1.0, 0.3)),
         ];
 
-        let u = super::construct_coulomb_operator_matrix_elements(&gaussians);
+        let u = super::construct_coulomb_interaction_operator_matrix_elements(
+            &gaussians,
+        );
         let l = gaussians.len();
 
         assert!(u.shape().len() == 4);
@@ -812,7 +816,9 @@ mod tests {
         let u_test =
             tests::construct_coulomb_operator_matrix_elements(&gaussians);
         let u_perm =
-            super::construct_coulomb_operator_matrix_elements(&gaussians);
+            super::construct_coulomb_interaction_operator_matrix_elements(
+                &gaussians,
+            );
 
         for p in 0..l {
             for q in 0..l {
