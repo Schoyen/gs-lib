@@ -230,7 +230,12 @@ mod tests {
 
         for p in 0..l {
             for q in 0..l {
-                assert_abs_diff_eq!(ilz[[p, q]], ilz[[q, p]]);
+                if p == q {
+                    continue;
+                }
+
+                // Negative sign to include the -1j-factor from hat{p}
+                assert_abs_diff_eq!(ilz[[p, q]], -ilz[[q, p]]);
                 assert_abs_diff_eq!(ilz[[p, q]], ilz_2[[p, q]]);
             }
         }

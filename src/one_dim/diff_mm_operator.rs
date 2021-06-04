@@ -38,14 +38,10 @@ pub fn construct_diff_mm_matrix_elements(
 
     for i in 0..l {
         let g_i = &gaussians[i];
-        l_ef[[i, i]] = g_i.norm.powi(2) * l_rec(e, f, center, g_i, g_i);
 
-        for j in (i + 1)..l {
+        for j in 0..l {
             let g_j = &gaussians[j];
-            let val = g_i.norm * g_j.norm * l_rec(e, f, center, g_i, g_j);
-
-            l_ef[[i, j]] = val;
-            l_ef[[j, i]] = val;
+            l_ef[[i, j]] = g_i.norm * g_j.norm * l_rec(e, f, center, g_i, g_j);
         }
     }
 
@@ -306,7 +302,7 @@ mod tests {
 
         for i in 0..t.nrows() {
             for j in 0..t.ncols() {
-                assert_abs_diff_eq!(t[[i, j]], t[[j, i]]);
+                assert_abs_diff_eq!(t[[i, j]], t[[j, i]], epsilon = 1e-14);
                 assert_abs_diff_eq!(t[[i, j]], t_2[[i, j]], epsilon = 1e-12);
             }
         }
