@@ -235,8 +235,12 @@ mod tests {
                 }
 
                 // Negative sign to include the -1j-factor from hat{p}
-                assert_abs_diff_eq!(ilz[[p, q]], -ilz[[q, p]]);
-                assert_abs_diff_eq!(ilz[[p, q]], ilz_2[[p, q]]);
+                assert_abs_diff_eq!(ilz[[p, q]], -ilz[[q, p]], epsilon = 1e-12);
+                assert_abs_diff_eq!(
+                    ilz[[p, q]],
+                    ilz_2[[p, q]],
+                    epsilon = 1e-12
+                );
             }
         }
     }
