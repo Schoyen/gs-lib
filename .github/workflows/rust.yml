@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_NET_GIT_FETCH_WITH_CLI: true
 
 jobs:
   build:
@@ -16,8 +17,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install GSL
-      run: sudo apt-get install libgsl0-dev
+    - uses: webfactory/ssh-agent@v0.5.4
+      with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     - name: Build
       run: cargo build --verbose
     - name: Run tests
