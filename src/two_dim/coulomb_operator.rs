@@ -1,5 +1,5 @@
+use amos_rs;
 use ndarray::{Array, Array2, Array4};
-use rgsl::bessel::In_scaled;
 
 use super::{G2D, OD2D};
 
@@ -259,7 +259,7 @@ fn int_twiddle_rec(n: i32, t: i32, u: i32, p: f64, sigma: (f64, f64)) -> f64 {
 
     if t == 0 && u == 0 {
         let arg = -p * (sigma.0.powi(2) + sigma.1.powi(2)) / 2.0;
-        return In_scaled(n, arg);
+        return amos_rs::zbesi::ive_real(n as f64, arg, 1)[0];
     }
 
     let pre_factor = -p / 2.0;
@@ -376,7 +376,7 @@ fn int_twiddle_rec(n: i32, t: i32, u: i32, p: f64, sigma: (f64, f64)) -> f64 {
 //     let delta_sq = delta.0.powi(2) + delta.1.powi(2);
 //     let arg = -delta_sq / (8.0 * sigma);
 //
-//     In_scaled(n, arg)
+//     amos_rs::zbesi::ive_real(n as f64, arg, 1)[0]
 // }
 
 #[cfg(test)]
@@ -389,7 +389,7 @@ mod tests {
         let delta_sq = delta.0.powi(2) + delta.1.powi(2);
         let arg = -delta_sq / (8.0 * sigma);
 
-        In_scaled(n, arg)
+        amos_rs::zbesi::ive_real(n as f64, arg, 1)[0]
     }
 
     fn construct_coulomb_operator_matrix_element(
