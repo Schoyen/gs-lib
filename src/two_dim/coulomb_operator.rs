@@ -259,7 +259,7 @@ fn int_twiddle_rec(n: i32, t: i32, u: i32, p: f64, sigma: (f64, f64)) -> f64 {
 
     if t == 0 && u == 0 {
         let arg = -p * (sigma.0.powi(2) + sigma.1.powi(2)) / 2.0;
-        return amos_rs::zbesi::ive_real(n as f64, arg, 1)[0];
+        return amos_rs::zbesi::ive_real(n as f64, arg);
     }
 
     let pre_factor = -p / 2.0;
@@ -376,7 +376,7 @@ fn int_twiddle_rec(n: i32, t: i32, u: i32, p: f64, sigma: (f64, f64)) -> f64 {
 //     let delta_sq = delta.0.powi(2) + delta.1.powi(2);
 //     let arg = -delta_sq / (8.0 * sigma);
 //
-//     amos_rs::zbesi::ive_real(n as f64, arg, 1)[0]
+//     amos_rs::zbesi::ive_real(n as f64, arg)
 // }
 
 #[cfg(test)]
@@ -389,7 +389,7 @@ mod tests {
         let delta_sq = delta.0.powi(2) + delta.1.powi(2);
         let arg = -delta_sq / (8.0 * sigma);
 
-        amos_rs::zbesi::ive_real(n as f64, arg, 1)[0]
+        amos_rs::zbesi::ive_real(n as f64, arg)
     }
 
     fn construct_coulomb_operator_matrix_element(
